@@ -1,0 +1,204 @@
+```html
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Omega Browser Mobile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --accent: #3b82f6;
+        }
+        body {
+            background-color: var(--bg-dark);
+            color: #f8fafc;
+            font-family: system-ui, -apple-system, sans-serif;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        /* Адаптивная панель адреса */
+        .nav-container {
+            background: #1e293b;
+            padding: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 50;
+        }
+        .address-input {
+            background: #334155;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 10px 16px;
+            width: 100%;
+            color: white;
+            transition: all 0.3s ease;
+            font-size: 16px; /* Предотвращает зум на iOS */
+        }
+        .address-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: #1e293b;
+        }
+        /* Контент браузера */
+        .content-area {
+            flex-grow: 1;
+            position: relative;
+            background: white;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        /* Нижняя панель навигации (как в Chrome Android) */
+        .bottom-bar {
+            background: #1e293b;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid #334155;
+        }
+        .nav-icon {
+            padding: 10px;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .nav-icon:active {
+            background: #334155;
+        }
+        /* Стартовый экран */
+        #home-screen {
+            position: absolute;
+            inset: 0;
+            background: var(--bg-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            transition: opacity 0.3s ease;
+        }
+        .tile {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            width: 80px;
+            transition: transform 0.2s;
+        }
+        .tile:active {
+            transform: scale(0.9);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Верхняя панель -->
+    <div class="nav-container">
+        <input type="text" 
+               id="urlInput" 
+               class="address-input" 
+               placeholder="Поиск или адрес" 
+               autocomplete="off"
+               onkeypress="handleKeyPress(event)">
+    </div>
+
+    <!-- Основное окно -->
+    <div class="content-area">
+        <div id="home-screen">
+            <h1 class="text-3xl font-bold mb-10 text-blue-400">Omega Browser</h1>
+            
+            <div class="grid grid-cols-3 gap-6 px-4">
+                <div onclick="openUrl('https://google.com')" class="tile">
+                    <span class="text-2xl">🔍</span>
+                    <p class="text-[10px] mt-2">Google</p>
+                </div>
+                <div onclick="openMorphe()" class="tile">
+                    <span class="text-2xl">📺</span>
+                    <p class="text-[10px] mt-2">Morphe</p>
+                </div>
+                <div onclick="openUrl('https://github.com')" class="tile">
+                    <span class="text-2xl">🐙</span>
+                    <p class="text-[10px] mt-2">GitHub</p>
+                </div>
+            </div>
+
+            <p class="mt-12 text-gray-500 text-xs italic">Сделано для Пельменя Омеги</p>
+        </div>
+        <iframe id="mainView" src="about:blank"></iframe>
+    </div>
+
+    <!-- Нижняя панель управления -->
+    <div class="bottom-bar">
+        <div class="nav-icon" onclick="goBack()">◀</div>
+        <div class="nav-icon" onclick="goForward()">▶</div>
+        <div class="nav-icon" onclick="toggleHome()">🏠</div>
+        <div class="nav-icon" onclick="reload()">🔄</div>
+        <div class="nav-icon" onclick="alert('Omega Browser v1.0\nГотов к APK!')">ℹ️</div>
+    </div>
+
+    <script>
+        const iframe = document.getElementById('mainView');
+        const urlInput = document.getElementById('urlInput');
+        const home = document.getElementById('home-screen');
+
+        function openUrl(url) {
+            let targetUrl = url;
+            if (!targetUrl.startsWith('http')) {
+                targetUrl = 'https://' + targetUrl;
+            }
+            
+            urlInput.value = targetUrl;
+            iframe.src = targetUrl;
+            home.style.opacity = '0';
+            setTimeout(() => home.style.zIndex = '-1', 300);
+        }
+
+        function openMorphe() {
+            // Специальное правило для YouTube Morphe
+            openUrl('https://www.youtube.com/@Morphe');
+        }
+
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') {
+                let val = urlInput.value;
+                if (val.includes('.') && !val.includes(' ')) {
+                    openUrl(val);
+                } else {
+                    openUrl('https://www.google.com/search?q=' + encodeURIComponent(val));
+                }
+                urlInput.blur();
+            }
+        }
+
+        function toggleHome() {
+            home.style.zIndex = '100';
+            home.style.opacity = '1';
+            iframe.src = 'about:blank';
+            urlInput.value = '';
+        }
+
+        function goBack() { window.history.back(); }
+        function goForward() { window.history.forward(); }
+        function reload() { iframe.src = iframe.src; }
+
+        // Если пользователь говорит "открой YouTube" (имитация команды через ввод)
+        urlInput.addEventListener('input', (e) => {
+            if (e.target.value.toLowerCase() === 'youtube') {
+                openMorphe();
+            }
+        });
+    </script>
+</body>
+</html>
+
+```
